@@ -5,6 +5,7 @@ const filePath = __dirname + "/../../ntcu-gui.db";
 function init() {
     let sql = `CREATE TABLE IF NOT EXISTS user (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    account TEXT,
     name TEXT,
     password TEXT)`;
 

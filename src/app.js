@@ -30,7 +30,7 @@ app.use(cookieParser());
 app.use(expressJWT({
   secret: "(gw#wyx(yZlxcZrSdhOUYIvw*AC_T)Ry",
   algorithms: ['HS256']
-}).unless({ path: ["/api/login"] }));
+}).unless({ path: ["/api/login", "/api/register"] }));
 
 // static files
 app.use("/public", staticFiles);

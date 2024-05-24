@@ -1,19 +1,20 @@
 const db = require("../utils/database");
 
-async function login(username, password) {
-    let sql = `SELECT * FROM user WHERE name='${username}'`
+async function login(account, password) {
+    let sql = `SELECT * FROM user WHERE account='${account}'`
     let user = await db.query(sql);
 
     if (user.length == 0)
         return undefined;
     if (user[0].password != password)
         return undefined
-    return { id: user[0].id, username: user[0].name };
+    delete user[0].password;
+    return user[0];
 }
 
-function addUser(username, password) {
-    let sql = `INSERT INTO user (name, password)
-                VALUES ("${username}", "${password}")`
+function addUser(account, name, password) {
+    let sql = `INSERT INTO user (account, name, password)
+                VALUES ("${account}", "${name}", "${password}")`
     db.query(sql);
 }
 
