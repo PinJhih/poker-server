@@ -10,6 +10,7 @@ var staticFiles = express.static(path.join(__dirname, "../public"));
 
 // create instances of routers
 var indexRouter = require("./routes/index");
+var apiRouter = require("./routes/api");
 
 // create instance of express APP
 var app = express();
@@ -29,6 +30,7 @@ app.use("/public", staticFiles);
 
 // bind routers
 app.use("/", indexRouter);
+app.use("/api", apiRouter);
 
 // not found error handler
 app.use(function (_, _, next) {
