@@ -35,7 +35,7 @@ router.post("/register", async function (req, res) {
         return res.status(400).send("Empty fields");
 
     users.addUser(account, name, password);
-    res.send("OK!");
+    res.json({ "message": "OK!" });
 });
 
 
@@ -59,7 +59,7 @@ router.get("/join/:id", function (req, res) {
     let roomID = req.params.id;
     let userID = req.auth.id;
     rooms[roomID].push(`${userID}`)
-    res.send("Succeed!");
+    res.json({ "message": "OK!" });
 });
 
 router.get("/leave/:id", function (req, res) {
@@ -70,14 +70,14 @@ router.get("/leave/:id", function (req, res) {
 
     if (rooms[roomID].length == 0)
         delete rooms[roomID];
-    res.send("Succeed!");
+    res.json({ "message": "OK!" });
 });
 
 router.get("/create", function (req, res) {
     let roomID = `${Date.now()}`;
     let userID = req.auth.id;
     rooms[roomID] = [userID];
-    res.send("Succeed!");
+    res.json({ "message": "OK!" });
 });
 
 module.exports = router;
