@@ -7,7 +7,7 @@ var httpError = require("http-errors");
 var logger = require("morgan");
 var cookieParser = require("cookie-parser");
 var staticFiles = express.static(path.join(__dirname, "../public"));
-var expressJWT = require("express-jwt");
+var { expressjwt: jwt } = require("express-jwt");
 
 // create instances of routers
 var indexRouter = require("./routes/index");
@@ -27,7 +27,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 // auth
-app.use(expressJWT({
+app.use(jwt({
   secret: "(gw#wyx(yZlxcZrSdhOUYIvw*AC_T)Ry",
   algorithms: ['HS256']
 }).unless({ path: ["/api/login", "/api/register"] }));
