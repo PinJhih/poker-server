@@ -53,6 +53,22 @@ router.get("/room", function (req, res) {
         res.json(roomList);
 });
 
+router.get("/room/:id", function (req, res) {
+    let id = req.params.id;
+    let room = rooms[id];
+    let names = "";
+    for (let i = 0; i < room.players.length; i++) {
+        if (names.length != 0) {
+            names += "-";
+        }
+        names += room.players[i];
+    }
+    
+    console.log(rooms);
+    console.log({ "players": names });
+    res.json({ "players": names });
+});
+
 router.get("/join/:id", function (req, res) {
     let roomID = req.params.id;
     let userName = req.auth.name;
@@ -101,6 +117,7 @@ wss.on('connection', function connection(ws) {
                 let num = rooms[id].connections.length;
                 let message = `num:${num}`;
                 ws.send(message);
+                broadcast(id, "join:");
                 break;
             }
 
@@ -109,12 +126,6 @@ wss.on('connection', function connection(ws) {
                 broadcast(id, `action:${data.action}`);
                 break;
             }
-        }
-    });
-
-    ws.on('close', function () {
-        if (currentRoomId) {
-            // TODO: Leave
         }
     });
 
@@ -127,6 +138,12 @@ wss.on('connection', function connection(ws) {
             });
         }
     }
+
+    ws.on('close', function () {
+        if (currentRoomId) {
+            // TODO: Leave
+        }
+    });
 })
 
 module.exports = router;
