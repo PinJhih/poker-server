@@ -91,18 +91,24 @@ wss.on('connection', function connection(ws) {
 
     ws.on('message', function incoming(message) {
         const data = JSON.parse(message);
-        console.log("Websocket: " + data);
+        console.log(`Websocket: ${JSON.stringify(data)}`);
 
         switch (data.type) {
-            case 'join':
-                id = data.id;
+            case 'join': {
+                let id = data.id;
                 rooms[id].connections.push(ws);
-                break;
 
-            case 'action':
-                id = data.id;
-                broadcast(id, data.action);
+                let num = rooms[id].connections.length;
+                let message = `num:${num}`;
+                ws.send(message);
                 break;
+            }
+
+            case 'action': {
+                let id = data.id;
+                broadcast(id, `action:${data.action}`);
+                break;
+            }
         }
     });
 
