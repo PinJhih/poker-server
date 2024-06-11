@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 var jwt = require("jsonwebtoken");
+const WebSocket = require('ws');
 
 const users = require("../models/users");
 
@@ -78,5 +79,48 @@ router.get("/create/room", function (req, res) {
     rooms[roomID] = { players: [userName], connections: [] };
     res.json({ "id": roomID });
 });
+
+const wss = new WebSocket.Server({ port: 8080 });
+
+wss.on('listening', () => {
+    console.log('WebSocket server is running on port 8080');
+});
+
+wss.on('connection', function connection(ws) {
+    let currentRoomId = null;
+
+    ws.on('message', function incoming(message) {
+        const data = JSON.parse(message);
+        console.log("Websocket: " + data);
+
+        switch (data.type) {
+            case 'join':
+                id = data.id;
+                rooms[id].connections.push(ws);
+                break;
+
+            case 'action':
+                id = data.id;
+                broadcast(id, data.action);
+                break;
+        }
+    });
+
+    ws.on('close', function () {
+        if (currentRoomId) {
+            // TODO: Leave
+        }
+    });
+
+    function broadcast(roomId, message) {
+        if (rooms[roomId]) {
+            rooms[roomId].connections.forEach(client => {
+                if (client.readyState === WebSocket.OPEN) {
+                    client.send(message);
+                }
+            });
+        }
+    }
+})
 
 module.exports = router;
