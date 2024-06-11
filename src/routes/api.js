@@ -39,26 +39,23 @@ router.post("/register", async function (req, res) {
 });
 
 
-let rooms = {
-    "id1": ["user1", "user2", "user3"],
-    "id2": ["user4", "user5", "user6"]
-};
+let rooms = {};
 router.get("/room", function (req, res) {
     let roomList = {};
     for (const id in rooms) {
-        let users = "";
-        for (const user of rooms[id]) {
-            users += `${user},`
-        }
-        roomList[id] = users
+        roomList[id] = rooms[id].players.length;
     }
-    res.json(roomList);
+
+    if (roomList.length == 0)
+        res.json({});
+    else
+        res.json(roomList);
 });
 
 router.get("/join/:id", function (req, res) {
     let roomID = req.params.id;
-    let userID = req.auth.id;
-    rooms[roomID].push(`${userID}`)
+    let userName = req.auth.name;
+    rooms[roomID].players.push(`${userName}`);
     res.json({ "message": "OK!" });
 });
 
@@ -73,11 +70,13 @@ router.get("/leave/:id", function (req, res) {
     res.json({ "message": "OK!" });
 });
 
-router.get("/create", function (req, res) {
+router.get("/create/room", function (req, res) {
     let roomID = `${Date.now()}`;
-    let userID = req.auth.id;
-    rooms[roomID] = [userID];
-    res.json({ "message": "OK!" });
+    let userName = req.auth.name;
+
+    roomID = roomID.substring(roomID.length - 6);
+    rooms[roomID] = { players: [userName], connections: [] };
+    res.json({ "id": roomID });
 });
 
 module.exports = router;
