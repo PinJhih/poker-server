@@ -148,8 +148,10 @@ wss.on('connection', function connection(ws) {
 
             case 'action': {
                 let id = data.id;
-                console.log(`${id} ${data.action}`);
-                broadcast(id, `action:${data.action}`);
+                if (data.action === "raise")
+                    broadcast(id, `action:${data.action}:${data.amount}`);
+                else
+                    broadcast(id, `action:${data.action}`);
                 break;
             }
         }
@@ -158,7 +160,6 @@ wss.on('connection', function connection(ws) {
     function broadcast(roomId, message) {
         if (rooms[roomId]) {
             rooms[roomId].connections.forEach(client => {
-                console.log("Bcast");
                 if (client.readyState === WebSocket.OPEN) {
                     client.send(message);
                 }
