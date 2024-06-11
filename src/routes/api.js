@@ -13,6 +13,24 @@ function genToken(user) {
     return token;
 }
 
+function generateDeck() {
+    const suits = ['S', 'H', 'D', 'C'];
+    const deck = [];
+
+    for (let suit of suits) {
+        for (let rank = 1; rank <= 13; rank++) {
+            deck.push(`${rank}${suit}`);
+        }
+    }
+
+    for (let i = deck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]]; // Swap elements
+    }
+
+    return deck;
+}
+
 router.post("/login", async function (req, res) {
     let account = req.body.account;
     let password = req.body.password;
@@ -63,9 +81,6 @@ router.get("/room/:id", function (req, res) {
         }
         names += room.players[i];
     }
-    
-    console.log(rooms);
-    console.log({ "players": names });
     res.json({ "players": names });
 });
 
@@ -92,7 +107,11 @@ router.get("/create/room", function (req, res) {
     let userName = req.auth.name;
 
     roomID = roomID.substring(roomID.length - 6);
-    rooms[roomID] = { players: [userName], connections: [] };
+    rooms[roomID] = {
+        players: [userName],
+        connections: [],
+        deck: generateDeck(),
+    };
     res.json({ "id": roomID });
 });
 
@@ -117,12 +136,19 @@ wss.on('connection', function connection(ws) {
                 let num = rooms[id].connections.length;
                 let message = `num:${num}`;
                 ws.send(message);
+
+                let cards = rooms[id].deck.slice(0, 2);
+                rooms[id].deck.shift();
+                rooms[id].deck.shift();
+                console.log(rooms[id].deck);
+                ws.send(`card:${cards[0]}-${cards[1]}`);
                 broadcast(id, "join:");
                 break;
             }
 
             case 'action': {
                 let id = data.id;
+                console.log(`${id} ${data.action}`);
                 broadcast(id, `action:${data.action}`);
                 break;
             }
@@ -132,6 +158,7 @@ wss.on('connection', function connection(ws) {
     function broadcast(roomId, message) {
         if (rooms[roomId]) {
             rooms[roomId].connections.forEach(client => {
+                console.log("Bcast");
                 if (client.readyState === WebSocket.OPEN) {
                     client.send(message);
                 }
