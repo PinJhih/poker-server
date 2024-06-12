@@ -154,6 +154,14 @@ wss.on('connection', function connection(ws) {
                     broadcast(id, `action:${data.action}`);
                 break;
             }
+
+            case 'open': {
+                let id = data.id;
+                let cards = rooms[id].deck[0];
+                rooms[id].deck.shift();
+                broadcast(id, `open:${cards}`);
+                break;
+            }
         }
     });
 
